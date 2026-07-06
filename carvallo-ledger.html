@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carvallo — Expense Reimbursements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --font-display: "Fraunces", Georgia, "Iowan Old Style", serif;
+    --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Consolas, monospace;
+    --paper:#F3ECDD;
+    --paper-shadow:#E7DCC3;
+    --card:#FFFDF9;
+    --rule:#C9D8DA;
+    --margin-line:#C1594B;
+    --ink:#22302A;
+    --ink-soft:#63706A;
+    --forest:#1F6B4E;
+    --forest-deep:#123322;
+    --forest-tint:#E4F1EA;
+    --rust:#C1594B;
+    --rust-deep:#8E3626;
+    --rust-tint:#FBEAE4;
+    --mustard:#D69F2E;
+    --mustard-deep:#8C5E14;
+    --mustard-tint:#FDF2DD;
+    --teal:#2C8C99;
+    --teal-deep:#1B5C66;
+    --teal-tint:#E4F4F5;
+    --border:#DDD2B2;
+    --shadow-card: 0 1px 2px rgba(34,48,42,0.04), 0 6px 16px rgba(34,48,42,0.07);
+    --shadow-card-hover: 0 2px 4px rgba(34,48,42,0.06), 0 10px 24px rgba(34,48,42,0.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: var(--font-display);
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0, transparent 34px, var(--paper-shadow) 34px, var(--paper-shadow) 35px),
+      linear-gradient(to right, transparent 0, transparent 68px, var(--margin-line) 68px, var(--margin-line) 69px, transparent 69px),
+      radial-gradient(1100px 600px at 8% -8%, rgba(44,140,153,0.16), transparent 60%),
+      radial-gradient(1000px 700px at 105% 0%, rgba(214,159,46,0.20), transparent 55%),
+      radial-gradient(1200px 800px at 50% 115%, rgba(31,107,78,0.14), transparent 60%),
+      linear-gradient(180deg, #FBF6E9 0%, #F3ECDD 45%, #EFE3D0 100%);
+    background-attachment: fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:960px; margin:0 auto; padding:2.75rem 2.5rem 4rem 3.5rem; }
+  header{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+    border-bottom:2.5px solid var(--ink); padding-bottom:1.1rem; margin-bottom:2rem;
+  }
+  .brand{ display:flex; align-items:center; gap:0.75rem; }
+  .brand .mark{
+    width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg, var(--forest) 0%, var(--teal) 100%); color:#fff;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:var(--font-display); font-weight:600; font-size:1.3rem;
+    box-shadow: var(--shadow-card);
+  }
+  .brand h1{ font-size:2.1rem; margin:0; letter-spacing:0.01em; font-weight:600; }
+  .brand p{
+    margin:0.15rem 0 0; font-family: var(--font-ui);
+    font-size:0.8rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--ink-soft);
+  }
+  .role-toggle{ display:flex; font-family: var(--font-ui); background:var(--card); border:1px solid var(--border); border-radius:999px; overflow:hidden; box-shadow:var(--shadow-card); }
+  .role-toggle button{ border:none; background:transparent; padding:0.55rem 1.2rem; font-size:0.85rem; font-weight:600; cursor:pointer; color:var(--ink-soft); font-family:inherit; transition:background 0.15s, color 0.15s; }
+  .role-toggle button:hover{ color:var(--ink); }
+  .role-toggle button.active{ background:var(--forest); color:#fff; }
+  h2.section-title{
+    display:flex; align-items:center; gap:0.6rem;
+    font-size:1rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--ink-soft);
+    font-family: var(--font-ui); font-weight:600; margin:2.25rem 0 1rem;
+  }
+  h2.section-title::before{ content:""; width:18px; height:2px; background:var(--forest); display:inline-block; border-radius:1px; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.4rem 1.6rem; box-shadow:var(--shadow-card); }
+  label{
+    display:block; font-family: var(--font-ui); font-size:0.76rem;
+    color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.3rem;
+  }
+  input, select, textarea{
+    font-family: var(--font-ui); font-size:0.95rem; padding:0.6rem 0.7rem;
+    border:1px solid var(--border); border-radius:7px; background:#fff; color:var(--ink); width:100%;
+    transition:border-color 0.15s, box-shadow 0.15s;
+  }
+  input:hover, select:hover, textarea:hover{ border-color:var(--ink-soft); }
+  input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--forest); box-shadow:0 0 0 3px var(--forest-tint); }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem 1.2rem; }
+  .form-grid .full{ grid-column:1 / -1; }
+  .amount-input{ display:flex; align-items:center; border:1px solid var(--border); border-radius:7px; background:#fff; padding-left:0.7rem; transition:border-color 0.15s, box-shadow 0.15s; }
+  .amount-input:focus-within{ border-color:var(--forest); box-shadow:0 0 0 3px var(--forest-tint); }
+  .amount-input span{ font-family: var(--font-mono); color:var(--ink-soft); }
+  .amount-input input{ border:none; padding-left:0.3rem; font-family: var(--font-mono); }
+  .amount-input input:focus{ outline:none; box-shadow:none; }
+  button.primary{
+    font-family: var(--font-ui); background:var(--forest); color:#fff;
+    border:none; padding:0.7rem 1.5rem; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; margin-top:0.6rem;
+    box-shadow:var(--shadow-card); transition:background 0.15s, transform 0.1s;
+  }
+  button.primary:hover{ background:var(--forest-deep); }
+  button.primary:active{ transform:scale(0.98); }
+  button.secondary{
+    font-family: var(--font-ui); background:#fff; color:var(--ink);
+    border:1.5px solid var(--border); padding:0.55rem 1.05rem; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer;
+    transition:border-color 0.15s, background 0.15s;
+  }
+  button.secondary:hover{ border-color:var(--forest); background:var(--forest-tint); }
+  button.link-danger{
+    font-family: var(--font-ui); background:none; border:none; color:var(--rust-deep);
+    font-size:0.78rem; cursor:pointer; text-decoration:underline; padding:0;
+  }
+  .receipt{
+    position:relative; background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:1.1rem 1.35rem 1.2rem; margin-bottom:1rem; box-shadow:var(--shadow-card);
+    background-image: repeating-linear-gradient(to right, var(--border) 0, var(--border) 6px, transparent 6px, transparent 12px);
+    background-size:100% 1px; background-position:top left; background-repeat:no-repeat;
+    transition:box-shadow 0.15s;
+  }
+  .receipt:hover{ box-shadow:var(--shadow-card-hover); }
+  .receipt-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; }
+  .receipt-amount{ font-family: var(--font-mono); font-size:1.3rem; font-weight:bold; white-space:nowrap; }
+  .receipt-meta{ font-family: var(--font-ui); font-size:0.8rem; color:var(--ink-soft); margin-top:0.15rem; }
+  .receipt-note{
+    margin-top:0.6rem; font-family: var(--font-ui); font-size:0.82rem;
+    color:var(--ink-soft); background:var(--paper); border-left:3px solid var(--forest); padding:0.5rem 0.7rem; border-radius:0 6px 6px 0;
+  }
+  .stamp{
+    font-family: var(--font-ui); font-weight:700; font-size:0.72rem;
+    letter-spacing:0.14em; text-transform:uppercase; padding:0.3rem 0.75rem; border:2.5px solid; border-radius:5px;
+    transform:rotate(-6deg); display:inline-block; white-space:nowrap; animation: stampIn 0.35s cubic-bezier(.2,1.4,.5,1) both;
+  }
+  .stamp.pending{ color:var(--mustard-deep); border-color:var(--mustard); background:var(--mustard-tint); transform:rotate(0deg); }
+  .stamp.approved{ color:var(--forest-deep); border-color:var(--forest); background:var(--forest-tint); }
+  .stamp.declined{ color:var(--rust-deep); border-color:var(--rust); background:var(--rust-tint); }
+  @keyframes stampIn{
+    0%{ transform:scale(2.6) rotate(-6deg); opacity:0; }
+    60%{ transform:scale(0.92) rotate(-6deg); opacity:1; }
+    100%{ transform:scale(1) rotate(-6deg); opacity:1; }
+  }
+  .actions{ margin-top:0.85rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; }
+  .actions input[type=text]{ flex:1; min-width:160px; font-size:0.85rem; padding:0.45rem 0.65rem; }
+  button.approve, button.decline{
+    font-family: var(--font-ui); font-size:0.82rem; font-weight:600;
+    border-radius:7px; padding:0.45rem 0.9rem; cursor:pointer; border:1.5px solid; transition:background 0.15s;
+  }
+  button.approve{ color:var(--forest-deep); border-color:var(--forest); background:#fff; }
+  button.approve:hover{ background:var(--forest-tint); }
+  button.decline{ color:var(--rust-deep); border-color:var(--rust); background:#fff; }
+  button.decline:hover{ background:var(--rust-tint); }
+  .summary-strip{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; margin-bottom:1.5rem; }
+  .summary-box{ font-family: var(--font-ui); background:var(--card); border:1px solid var(--border); border-left:3px solid var(--forest); border-radius:10px; padding:0.9rem 1.1rem; box-shadow:var(--shadow-card); }
+  .summary-box .num{ font-family: var(--font-mono); font-size:1.5rem; font-weight:700; }
+  .summary-box .lbl{ font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); }
+  .empty{
+    font-family: var(--font-ui); color:var(--ink-soft); padding:1.4rem 1.3rem; text-align:center;
+    background:var(--card); border:1.5px dashed var(--border); border-radius:12px; font-size:0.92rem;
+  }
+  .who-row{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; margin-bottom:0.5rem; }
+  .who-row .who-name{ font-weight:600; font-size:1.08rem; font-family:var(--font-display); }
+  .who-row .who-manager{ font-family: var(--font-ui); font-size:0.78rem; color:var(--ink-soft); }
+  table.line-items{ width:100%; border-collapse:collapse; margin-top:0.7rem; }
+  table.line-items th{
+    font-family: var(--font-ui); text-align:left; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); padding:0.35rem 0.5rem; border-bottom:1.5px solid var(--border);
+  }
+  table.line-items td{ padding:0.5rem; border-bottom:1px dashed var(--border); font-size:0.9rem; vertical-align:top; }
+  table.line-items tr:last-child td{ border-bottom:none; }
+  table.line-items td.num{ font-family: var(--font-mono); text-align:right; white-space:nowrap; }
+  .bill-link{ font-family: var(--font-ui); font-size:0.78rem; color:var(--forest-deep); font-weight:600; cursor:pointer; padding:0.15rem 0.55rem; background:var(--forest-tint); border-radius:5px; }
+  .bill-link:hover{ text-decoration:underline; }
+  .line-row{ display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; padding:1rem 0; border-bottom:1px dashed var(--border); }
+  .line-row .full{ grid-column:1/-1; }
+  .line-row-head{ display:flex; justify-content:space-between; align-items:center; grid-column:1/-1; }
+  .line-row-head span{ font-family: var(--font-ui); font-size:0.75rem; color:var(--forest-deep); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; }
+  .file-hint{ font-family: var(--font-ui); font-size:0.72rem; color:var(--ink-soft); margin-top:0.3rem; }
+  .login-wrap{ max-width:380px; margin:2.5rem auto 0; }
+  .login-wrap .card{ display:flex; flex-direction:column; gap:1rem; }
+  .error-text{ font-family: var(--font-ui); color:var(--rust-deep); font-size:0.85rem; margin:0; }
+  .admin-list{ list-style:none; padding:0; margin:0.7rem 0 0; }
+  .admin-list li{
+    display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.2rem;
+    border-bottom:1px dashed var(--border); font-family: var(--font-ui); font-size:0.9rem;
+  }
+  .admin-list li:last-child{ border-bottom:none; }
+  .admin-list li .who{ display:flex; align-items:center; gap:0.65rem; }
+  .avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--forest-tint); color:var(--forest-deep);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-ui); font-weight:700;
+    font-size:0.78rem; flex-shrink:0;
+  }
+  .admin-list li .meta{ color:var(--ink-soft); font-size:0.78rem; }
+  @media (max-width:640px){
+    .wrap{ padding:2rem 1.25rem 3rem 1.75rem; }
+    .form-grid, .line-row{ grid-template-columns:1fr; }
+    .summary-strip{ grid-template-columns:1fr; }
+  }
+  .file-modal-overlay{
+    position:fixed; inset:0; background:rgba(18,26,22,0.55); z-index:1000;
+    display:flex; align-items:center; justify-content:center; padding:2rem;
+  }
+  .file-modal{
+    background:var(--card); border-radius:14px; max-width:840px; width:100%; max-height:88vh;
+    display:flex; flex-direction:column; box-shadow: var(--shadow-card-hover); overflow:hidden;
+  }
+  .file-modal-head{
+    display:flex; align-items:center; justify-content:space-between; padding:0.9rem 1.2rem;
+    border-bottom:1px solid var(--border); font-family: var(--font-ui); font-weight:600;
+  }
+  .file-modal-body{ padding:1rem 1.2rem 1.4rem; overflow:auto; display:flex; align-items:center; justify-content:center; }
+  .file-modal-body img{ max-width:100%; max-height:70vh; border-radius:8px; box-shadow:var(--shadow-card); }
+  .file-modal-body iframe{ width:100%; height:70vh; border:1px solid var(--border); border-radius:8px; }
+  .admin-layout{ display:grid; grid-template-columns:1fr 320px; gap:1.6rem; align-items:start; }
+  .admin-side{ position:sticky; top:1.5rem; }
+  @media (max-width:900px){
+    .admin-layout{ grid-template-columns:1fr; }
+    .admin-side{ position:static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark">C</div>
+      <div>
+        <h1>Carvallo</h1>
+        <p>Expense reimbursements</p>
+      </div>
+    </div>
+    <div class="role-toggle" id="roleToggle">
+      <button data-role="employee" class="active">Employee</button>
+      <button data-role="manager">Manager</button>
+      <button data-role="admin">Admin</button>
+    </div>
+  </header>
+  <div id="app"></div>
+</div>
+
+<div id="fileModalOverlay" class="file-modal-overlay" style="display:none;">
+  <div class="file-modal">
+    <div class="file-modal-head">
+      <span id="fileModalTitle">Attachment</span>
+      <button type="button" class="secondary" id="fileModalClose">Close</button>
+    </div>
+    <div class="file-modal-body" id="fileModalBody"></div>
+  </div>
+</div>
+
+<script>
+let currentRole = 'employee';
+let selectedEmployee = '';
+let employeeLoggedIn = false;
+let employeeLoginError = '';
+let selectedManager = '';
+let managerLoggedIn = false;
+let managerLoginError = '';
+let adminLoggedIn = false;
+let adminError = '';
+let currentAdminEmail = '';
+let lineDraftCounter = 0;
+let currentLines = [];
+let submittedNotice = '';
+
+const CATEGORIES = ['Travel','Accommodation','Meals','Supplies','Software','Training & Education','Client entertainment','Miscellaneous','Other'];
+const CURRENCIES = [
+  { code:'USD', symbol:'$' },
+  { code:'EUR', symbol:'€' },
+  { code:'GBP', symbol:'£' },
+  { code:'INR', symbol:'₹' },
+  { code:'AUD', symbol:'A$' },
+  { code:'CAD', symbol:'C$' },
+  { code:'JPY', symbol:'¥' }
+];
+function currencySymbol(code){ const c = CURRENCIES.find(c => c.code === code); return c ? c.symbol : (code || '$'); }
+const MAX_FILE_BYTES = 1.5 * 1024 * 1024;
+
+const LS_DIRECTORY = 'ledger:directory';
+const LS_CREDS = 'ledger:admin-credentials';
+const LS_ADMINS = 'ledger:admins';
+const LS_REPORTS = 'ledger:reports';
+const LS_MYNAME = 'ledger:my-name';
+
+async function loadDirectory(){
+  try{
+    const raw = localStorage.getItem(LS_DIRECTORY);
+    return raw ? JSON.parse(raw) : { employees: [], managers: [] };
+  }catch(e){ return { employees: [], managers: [] }; }
+}
+async function saveDirectory(dir){
+  try{ localStorage.setItem(LS_DIRECTORY, JSON.stringify(dir)); }catch(e){ console.error(e); }
+}
+async function loadAdmins(){
+  try{
+    const raw = localStorage.getItem(LS_ADMINS);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  }catch(e){}
+  // migrate from the old single-admin format if present
+  let migrated = null;
+  try{
+    const oldRaw = localStorage.getItem(LS_CREDS);
+    if(oldRaw){
+      const old = JSON.parse(oldRaw);
+      if(old && old.email && old.password){
+        migrated = [{ name: 'Admin', email: old.email, password: old.password }];
+      }
+    }
+  }catch(e){}
+  const def = migrated || [{ name: 'Admin', email: 'aanishcarvallo@gmail.com', password: 'Noreen@1978' }];
+  try{ localStorage.setItem(LS_ADMINS, JSON.stringify(def)); }catch(e){}
+  return def;
+}
+async function saveAdmins(list){
+  try{ localStorage.setItem(LS_ADMINS, JSON.stringify(list)); }catch(e){ console.error(e); }
+}
+async function loadAllReports(){
+  try{
+    const raw = localStorage.getItem(LS_REPORTS);
+    const map = raw ? JSON.parse(raw) : {};
+    return Object.values(map);
+  }catch(e){ return []; }
+}
+async function saveReport(report){
+  try{
+    const raw = localStorage.getItem(LS_REPORTS);
+    const map = raw ? JSON.parse(raw) : {};
+    map[report.id] = report;
+    localStorage.setItem(LS_REPORTS, JSON.stringify(map));
+  }catch(e){ console.error('save failed', e); }
+}
+async function loadMyName(){
+  try{ return localStorage.getItem(LS_MYNAME) || ''; }catch(e){ return ''; }
+}
+async function saveMyName(name){ try{ localStorage.setItem(LS_MYNAME, name); }catch(e){} }
+
+function fmtMoney(n, currency){ return currencySymbol(currency || 'USD') + Number(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtDate(d){ const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'}); }
+function esc(s){ const d = document.createElement('div'); d.innerText = s == null ? '' : s; return d.innerHTML; }
+function stampHtml(status){
+  if(status==='approved') return '<span class="stamp approved">Approved</span>';
+  if(status==='declined') return '<span class="stamp declined">Declined</span>';
+  return '<span class="stamp pending">Pending</span>';
+}
+function reportTotalsByCurrency(report){
+  const totals = {};
+  report.items.forEach(i => {
+    const c = i.currency || 'USD';
+    totals[c] = (totals[c] || 0) + Number(i.amount);
+  });
+  return totals;
+}
+function reportTotalDisplay(report){
+  const totals = reportTotalsByCurrency(report);
+  return Object.keys(totals).map(c => fmtMoney(totals[c], c)).join(' + ');
+}
+function sumTotalsByCurrency(reports){
+  const totals = {};
+  reports.forEach(r => {
+    const rt = reportTotalsByCurrency(r);
+    Object.keys(rt).forEach(c => { totals[c] = (totals[c] || 0) + rt[c]; });
+  });
+  return totals;
+}
+function fmtTotalsDict(totals){
+  const keys = Object.keys(totals);
+  if(keys.length === 0) return fmtMoney(0, 'USD');
+  return keys.map(c => fmtMoney(totals[c], c)).join(' + ');
+}
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+function showFileModal(dataUrl, fileType, fileName){
+  const overlay = document.getElementById('fileModalOverlay');
+  const body = document.getElementById('fileModalBody');
+  const title = document.getElementById('fileModalTitle');
+  title.textContent = fileName || 'Attachment';
+  if((fileType||'').startsWith('image/')){
+    body.innerHTML = `<img src="${dataUrl}" alt="${esc(fileName||'Attachment')}">`;
+  } else {
+    body.innerHTML = `<iframe src="${dataUrl}"></iframe>`;
+  }
+  overlay.style.display = 'flex';
+}
+function hideFileModal(){
+  document.getElementById('fileModalOverlay').style.display = 'none';
+  document.getElementById('fileModalBody').innerHTML = '';
+}
+document.getElementById('fileModalClose').addEventListener('click', hideFileModal);
+document.getElementById('fileModalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'fileModalOverlay') hideFileModal();
+});
+
+function newLineDraft(){
+  lineDraftCounter++;
+  return { draftId: 'd' + lineDraftCounter, date: new Date().toISOString().slice(0,10), category: CATEGORIES[0], currency:'USD', amount:'', description:'', fileName:'', fileDataUrl:'', fileType:'' };
+}
+
+async function renderApp(){
+  const app = document.getElementById('app');
+  if(currentRole === 'employee'){
+    const dir = await loadDirectory();
+    if(!employeeLoggedIn){
+      app.innerHTML = renderEmployeeLogin();
+      wireEmployeeLogin(dir);
+    } else {
+      const reports = await loadAllReports();
+      app.innerHTML = renderEmployeeView(dir, reports);
+      wireEmployeeView(dir);
+    }
+  } else if(currentRole === 'manager'){
+    const [dir, reports] = await Promise.all([loadDirectory(), loadAllReports()]);
+    app.innerHTML = renderManagerView(dir, reports);
+    wireManagerView(dir);
+  } else {
+    if(!adminLoggedIn){
+      app.innerHTML = renderAdminLogin();
+      wireAdminLogin();
+    } else {
+      const [dir, admins, reports] = await Promise.all([loadDirectory(), loadAdmins(), loadAllReports()]);
+      app.innerHTML = renderAdminPanel(dir, admins, reports);
+      wireAdminPanel(dir, admins);
+    }
+  }
+}
+
+function renderEmployeeLogin(){
+  const dirEmpty = false;
+  return `
+    <div class="login-wrap">
+      <h2 class="section-title">Employee sign in</h2>
+      <div class="card">
+        <p style="font-family:var(--font-ui); font-size:0.85rem; color:var(--ink-soft); margin:0 0 0.2rem;">Use the Employee ID and password your admin gave you.</p>
+        <div>
+          <label for="empIdInput">Employee ID</label>
+          <input type="text" id="empIdInput" placeholder="e.g. EMP001">
+        </div>
+        <div>
+          <label for="empPasswordInput">Password</label>
+          <input type="password" id="empPasswordInput" placeholder="Password">
+        </div>
+        ${employeeLoginError ? `<p class="error-text">${esc(employeeLoginError)}</p>` : ''}
+        <button type="button" class="primary" id="empLoginBtn">Sign in</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireEmployeeLogin(dir){
+  document.getElementById('empLoginBtn').addEventListener('click', () => {
+    const id = document.getElementById('empIdInput').value.trim();
+    const password = document.getElementById('empPasswordInput').value;
+    const match = dir.employees.find(e => e.employeeId && e.employeeId.toLowerCase() === id.toLowerCase() && e.password === password);
+    if(match){
+      selectedEmployee = match.name;
+      employeeLoggedIn = true;
+      employeeLoginError = '';
+      currentLines = [newLineDraft()];
+    } else {
+      employeeLoginError = 'That Employee ID or password is not right.';
+    }
+    renderApp();
+  });
+}
+
+function renderEmployeeView(dir, reports){
+  const employees = dir.employees;
+  if(currentLines.length === 0) currentLines = [newLineDraft()];
+
+  const me = employees.find(e => e.name === selectedEmployee);
+
+  let formSection = '';
+  if(!me){
+    formSection = '<p class="empty">Your account was not found. Please sign in again.</p>';
+  } else {
+    formSection = `
+      <div class="card">
+        <div class="form-grid" style="margin-bottom:0.6rem;">
+          <div>
+            <label>Filing as</label>
+            <input type="text" value="${esc(me.name)}" disabled>
+          </div>
+          <div>
+            <label>Routes to manager</label>
+            <input type="text" value="${esc(me.managerName || 'Unassigned')}" disabled>
+          </div>
+        </div>
+        <div id="lineItemsWrap">${renderLineDrafts()}</div>
+        <div style="display:flex; gap:0.6rem; margin-top:0.4rem;">
+          <button type="button" class="secondary" id="addLineBtn">+ Add line item</button>
+        </div>
+        <p class="file-hint" style="margin-bottom:0.4rem;">Add as many line items as you need — they'll all be submitted together as one expense report.</p>
+        <button type="button" class="primary" id="submitReportBtn">Submit expense report</button>
+        <p id="empFormError" class="error-text" style="display:none;"></p>
+      </div>
+    `;
+  }
+
+  const mine = reports
+    .filter(r => r.employeeName === selectedEmployee)
+    .sort((a,b) => b.submittedAt - a.submittedAt);
+
+  let listHtml = '';
+  if(!selectedEmployee){
+    listHtml = '<p class="empty">Select your name above to see your submitted reports.</p>';
+  } else if(mine.length === 0){
+    listHtml = '<p class="empty">No reports filed yet.</p>';
+  } else {
+    listHtml = mine.map(r => `
+      <div class="receipt">
+        <div class="receipt-top">
+          <div>
+            <div>${r.items.length} line item${r.items.length===1?'':'s'} &middot; to ${esc(r.managerName || 'Unassigned')}</div>
+            <div class="receipt-meta">Filed ${new Date(r.submittedAt).toLocaleDateString()}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.8rem;">
+            <div class="receipt-amount">${reportTotalDisplay(r)}</div>
+            ${stampHtml(r.status)}
+          </div>
+        </div>
+        ${renderLineItemsTable(r.items, r.id)}
+        ${r.managerNote ? `<div class="receipt-note">Manager note: ${esc(r.managerNote)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  const noticeHtml = submittedNotice
+    ? `<div class="receipt-note" style="margin-bottom:1.2rem; border-left-color:var(--teal); background:var(--teal-tint);">${esc(submittedNotice)}</div>`
+    : '';
+  submittedNotice = '';
+
+  return `
+    <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+      <button type="button" class="secondary" id="empLogoutBtn">Sign out</button>
+    </div>
+    ${noticeHtml}
+    <h2 class="section-title">File an expense report</h2>
+    ${formSection}
+    <h2 class="section-title">Your submitted reports</h2>
+    ${listHtml}
+  `;
+}
+
+function renderLineDrafts(){
+  return currentLines.map((l, idx) => `
+    <div class="line-row" data-draft="${l.draftId}">
+      <div class="line-row-head">
+        <span>Line ${idx+1}</span>
+        ${currentLines.length > 1 ? `<button type="button" class="link-danger" data-remove-line="${l.draftId}">Remove</button>` : ''}
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" class="line-date" value="${l.date}" max="${new Date().toISOString().slice(0,10)}">
+      </div>
+      <div>
+        <label>Category</label>
+        <select class="line-category">
+          ${CATEGORIES.map(c => `<option value="${c}" ${c===l.category?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label>Amount</label>
+        <div class="amount-input"><span id="curSym-${l.draftId}">${currencySymbol(l.currency)}</span><input type="number" class="line-amount" min="0.01" step="0.01" value="${l.amount}" placeholder="0.00"></div>
+      </div>
+      <div>
+        <label>Currency</label>
+        <select class="line-currency">
+          ${CURRENCIES.map(c => `<option value="${c.code}" ${c.code===l.currency?'selected':''}>${c.code} (${c.symbol})</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label>Attach bill</label>
+        <input type="file" class="line-file" accept="image/*,application/pdf">
+        <div class="file-hint">${l.fileName ? 'Attached: ' + esc(l.fileName) : 'Image or PDF, under 1.5MB'}</div>
+      </div>
+      <div class="full">
+        <label>Description</label>
+        <textarea class="line-desc" rows="2" placeholder="What was this for?">${esc(l.description)}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLineItemsTable(items, reportId){
+  return `
+    <table class="line-items">
+      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Bill</th><th style="text-align:right;">Amount</th></tr></thead>
+      <tbody>
+        ${items.map((it, i) => `
+          <tr>
+            <td>${fmtDate(it.date)}</td>
+            <td>${esc(it.category)}</td>
+            <td>${esc(it.description)}</td>
+            <td>${it.fileDataUrl ? `<span class="bill-link" data-view-bill="${reportId}" data-item-index="${i}">${esc(it.fileName || 'View bill')}</span>` : '<span style="color:var(--ink-soft); font-size:0.8rem;">None</span>'}</td>
+            <td class="num">${fmtMoney(it.amount, it.currency)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function wireEmployeeView(dir){
+  const empLogoutBtn = document.getElementById('empLogoutBtn');
+  if(empLogoutBtn){
+    empLogoutBtn.addEventListener('click', async () => {
+      employeeLoggedIn = false;
+      selectedEmployee = '';
+      currentLines = [];
+      await renderApp();
+    });
+  }
+
+  const addLineBtn = document.getElementById('addLineBtn');
+  if(addLineBtn){
+    addLineBtn.addEventListener('click', () => {
+      readLinesFromDom();
+      currentLines.push(newLineDraft());
+      renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-remove-line]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      readLinesFromDom();
+      const id = btn.getAttribute('data-remove-line');
+      currentLines = currentLines.filter(l => l.draftId !== id);
+      renderApp();
+    });
+  });
+
+  document.querySelectorAll('.line-currency').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const draftId = sel.closest('.line-row').getAttribute('data-draft');
+      const symEl = document.getElementById('curSym-' + draftId);
+      if(symEl) symEl.textContent = currencySymbol(sel.value);
+    });
+  });
+
+  document.querySelectorAll('.line-file').forEach(input => {
+    input.addEventListener('change', async () => {
+      const file = input.files[0];
+      if(!file) return;
+      if(file.size > MAX_FILE_BYTES){
+        alert('That file is larger than 1.5MB. Please attach a smaller image or PDF.');
+        input.value = '';
+        return;
+      }
+      const draftId = input.closest('.line-row').getAttribute('data-draft');
+      const line = currentLines.find(l => l.draftId === draftId);
+      try{
+        const dataUrl = await fileToDataUrl(file);
+        line.fileDataUrl = dataUrl;
+        line.fileName = file.name;
+        line.fileType = file.type;
+        readLinesFromDom();
+        renderApp();
+      }catch(e){
+        alert('Could not read that file, please try again.');
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-view-bill]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const reportId = el.getAttribute('data-view-bill');
+      const itemIndex = parseInt(el.getAttribute('data-item-index'), 10);
+      const reports = await loadAllReports();
+      const report = reports.find(r => r.id === reportId);
+      if(!report) return;
+      const item = report.items[itemIndex];
+      if(item && item.fileDataUrl) showFileModal(item.fileDataUrl, item.fileType, item.fileName);
+    });
+  });
+
+  const submitBtn = document.getElementById('submitReportBtn');
+  if(submitBtn){
+    submitBtn.addEventListener('click', async () => {
+      readLinesFromDom();
+      const errEl = document.getElementById('empFormError');
+      for(const l of currentLines){
+        if(!l.date || !l.category || !l.amount || Number(l.amount) <= 0 || !l.description.trim()){
+          errEl.textContent = 'Please fill in date, category, amount, and description for every line item.';
+          errEl.style.display = 'block';
+          return;
+        }
+      }
+      const me = dir.employees.find(e => e.name === selectedEmployee);
+      const report = {
+        id: 'rep_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        employeeName: selectedEmployee,
+        employeeEmail: me ? me.email : '',
+        managerName: me ? (me.managerName || '') : '',
+        status: 'pending',
+        managerNote: '',
+        submittedAt: Date.now(),
+        decidedAt: null,
+        items: currentLines.map(l => ({
+          date: l.date, category: l.category, amount: Number(l.amount), currency: l.currency || 'USD', description: l.description.trim(),
+          fileName: l.fileName, fileDataUrl: l.fileDataUrl, fileType: l.fileType
+        }))
+      };
+      await saveReport(report);
+      const mgr = dir.managers.find(m => m.name === report.managerName);
+      if(mgr && mgr.email){
+        notifyManagerByEmail(report, mgr.email);
+      }
+      currentLines = [newLineDraft()];
+      submittedNotice = mgr && mgr.email
+        ? `Report submitted. An email draft to ${mgr.email} has been opened in your mail app — please hit send to notify them.`
+        : 'Report submitted. Your manager has no email on file, so no notification email could be prepared.';
+      await renderApp();
+    });
+  }
+}
+
+function notifyManagerByEmail(report, managerEmail){
+  const total = reportTotalDisplay(report);
+  const lines = report.items.map((it, i) =>
+    `${i+1}. ${it.date} — ${it.category} — ${fmtMoney(it.amount, it.currency)} — ${it.description}`
+  ).join('\n');
+  const subject = `New expense report from ${report.employeeName} (${total})`;
+  const body =
+    `Hi ${report.managerName},\n\n` +
+    `${report.employeeName} just submitted a new expense report for your review.\n\n` +
+    `Line items:\n${lines}\n\n` +
+    `Total: ${total}\n\n` +
+    `Please sign in to Carvallo to approve or decline this report.\n`;
+  const mailtoUrl = `mailto:${encodeURIComponent(managerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const a = document.createElement('a');
+  a.href = mailtoUrl;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function readLinesFromDom(){
+  document.querySelectorAll('.line-row').forEach(row => {
+    const id = row.getAttribute('data-draft');
+    const line = currentLines.find(l => l.draftId === id);
+    if(!line) return;
+    line.date = row.querySelector('.line-date').value;
+    line.category = row.querySelector('.line-category').value;
+    line.amount = row.querySelector('.line-amount').value;
+    line.currency = row.querySelector('.line-currency').value;
+    line.description = row.querySelector('.line-desc').value;
+  });
+}
+
+function renderManagerView(dir, reports){
+  const managers = dir.managers;
+
+  if(managers.length === 0){
+    return '<p class="empty">No managers have been added yet. Ask your admin to add you in the Admin tab.</p>';
+  }
+
+  if(!managerLoggedIn){
+    const mgrOptions = managers.map(m => `<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('');
+    return `
+      <div class="login-wrap">
+        <h2 class="section-title">Manager sign in</h2>
+        <div class="card">
+          <p style="font-family:var(--font-ui); font-size:0.85rem; color:var(--ink-soft); margin:0 0 0.2rem;">Your admin sets your password — ask them if you don't have one yet.</p>
+          <div>
+            <label for="mgrSelect">Who are you?</label>
+            <select id="mgrSelect"><option value="">Select your name</option>${mgrOptions}</select>
+          </div>
+          <div>
+            <label for="mgrPasswordInput">Password</label>
+            <input type="password" id="mgrPasswordInput" placeholder="Password">
+          </div>
+          ${managerLoginError ? `<p class="error-text">${esc(managerLoginError)}</p>` : ''}
+          <button type="button" class="primary" id="mgrLoginBtn">Sign in</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const mine = reports.filter(r => r.managerName === selectedManager);
+  const sorted = [...mine].sort((a,b) => {
+    if(a.status === 'pending' && b.status !== 'pending') return -1;
+    if(b.status === 'pending' && a.status !== 'pending') return 1;
+    return b.submittedAt - a.submittedAt;
+  });
+
+  const pendingCount = mine.filter(r => r.status === 'pending').length;
+  const pendingTotal = fmtTotalsDict(sumTotalsByCurrency(mine.filter(r => r.status === 'pending')));
+  const approvedTotal = fmtTotalsDict(sumTotalsByCurrency(mine.filter(r => r.status === 'approved')));
+
+  let listHtml = '';
+  if(sorted.length === 0){
+    listHtml = '<p class="empty">No expense reports have been routed to you yet.</p>';
+  } else {
+    listHtml = sorted.map(r => `
+      <div class="receipt" data-id="${r.id}">
+        <div class="who-row">
+          <span class="who-name">${esc(r.employeeName)}</span>
+          <span class="who-manager">${r.items.length} line item${r.items.length===1?'':'s'}</span>
+        </div>
+        <div class="receipt-top">
+          <div class="receipt-meta">Filed ${new Date(r.submittedAt).toLocaleDateString()}</div>
+          <div style="display:flex; align-items:center; gap:0.8rem;">
+            <div class="receipt-amount">${reportTotalDisplay(r)}</div>
+            ${stampHtml(r.status)}
+          </div>
+        </div>
+        ${renderLineItemsTable(r.items, r.id)}
+        ${r.status === 'pending' ? `
+          <div class="actions">
+            <input type="text" class="noteInput" placeholder="Optional note to employee">
+            <button class="approve" data-action="approve" data-id="${r.id}">Approve</button>
+            <button class="decline" data-action="decline" data-id="${r.id}">Decline</button>
+          </div>
+        ` : (r.managerNote ? `<div class="receipt-note">Your note: ${esc(r.managerNote)}</div>` : '')}
+      </div>
+    `).join('');
+  }
+
+  return `
+    <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+      <button type="button" class="secondary" id="mgrLogoutBtn">Sign out</button>
+    </div>
+    <h2 class="section-title">Overview</h2>
+    <div class="summary-strip">
+      <div class="summary-box"><div class="num">${pendingCount}</div><div class="lbl">Pending reports</div></div>
+      <div class="summary-box"><div class="num">${pendingTotal}</div><div class="lbl">Pending total</div></div>
+      <div class="summary-box"><div class="num">${approvedTotal}</div><div class="lbl">Approved total</div></div>
+    </div>
+    <h2 class="section-title">Reports for your team</h2>
+    ${listHtml}
+  `;
+}
+
+function wireManagerView(dir){
+  const mgrLoginBtn = document.getElementById('mgrLoginBtn');
+  if(mgrLoginBtn){
+    mgrLoginBtn.addEventListener('click', async () => {
+      const name = document.getElementById('mgrSelect').value;
+      const password = document.getElementById('mgrPasswordInput').value;
+      const fresh = await loadDirectory();
+      const match = fresh.managers.find(m => m.name === name);
+      if(match && name && match.password === password){
+        selectedManager = name;
+        managerLoggedIn = true;
+        managerLoginError = '';
+      } else if(!name){
+        managerLoginError = 'Select your name first.';
+      } else {
+        managerLoginError = 'That password is not right. Ask your admin to reset it.';
+      }
+      await renderApp();
+    });
+  }
+
+  const mgrLogoutBtn = document.getElementById('mgrLogoutBtn');
+  if(mgrLogoutBtn){
+    mgrLogoutBtn.addEventListener('click', async () => {
+      managerLoggedIn = false;
+      selectedManager = '';
+      managerLoginError = '';
+      await renderApp();
+    });
+  }
+  document.querySelectorAll('[data-view-bill]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const reportId = el.getAttribute('data-view-bill');
+      const itemIndex = parseInt(el.getAttribute('data-item-index'), 10);
+      const reports = await loadAllReports();
+      const report = reports.find(r => r.id === reportId);
+      if(!report) return;
+      const item = report.items[itemIndex];
+      if(item && item.fileDataUrl) showFileModal(item.fileDataUrl, item.fileType, item.fileName);
+    });
+  });
+  document.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+      const receiptEl = btn.closest('.receipt');
+      const note = receiptEl.querySelector('.noteInput') ? receiptEl.querySelector('.noteInput').value.trim() : '';
+      const reports = await loadAllReports();
+      const report = reports.find(r => r.id === id);
+      if(!report) return;
+      report.status = action === 'approve' ? 'approved' : 'declined';
+      report.managerNote = note;
+      report.decidedAt = Date.now();
+      await saveReport(report);
+      await renderApp();
+    });
+  });
+}
+
+function renderAdminLogin(){
+  return `
+    <div class="login-wrap">
+      <h2 class="section-title">Admin sign in</h2>
+      <div class="card">
+        <div>
+          <label for="adminEmail">Email</label>
+          <input type="email" id="adminEmail" placeholder="you@company.com">
+        </div>
+        <div>
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" placeholder="Password">
+        </div>
+        ${adminError ? `<p class="error-text">${esc(adminError)}</p>` : ''}
+        <button type="button" class="primary" id="adminLoginBtn">Sign in</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireAdminLogin(){
+  document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const admins = await loadAdmins();
+    const match = admins.find(a => a.email.toLowerCase() === email.toLowerCase() && a.password === password);
+    if(match){
+      adminLoggedIn = true;
+      currentAdminEmail = match.email;
+      adminError = '';
+    } else {
+      adminError = 'That email or password is not right.';
+    }
+    await renderApp();
+  });
+}
+
+function initials(name){
+  return name.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
+}
+
+function renderAdminPanel(dir, admins, reports){
+  const managerOptionsForEmp = dir.managers.map(m => `<option value="${esc(m.name)}">${esc(m.name)}</option>`).join('');
+  const currentMonth = new Date().toISOString().slice(0,7);
+  const monthReports = reports.filter(r => new Date(r.submittedAt).toISOString().slice(0,7) === currentMonth);
+  const monthTotals = fmtTotalsDict(sumTotalsByCurrency(monthReports));
+  return `
+    <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+      <button type="button" class="secondary" id="adminLogoutBtn">Sign out</button>
+    </div>
+
+    <div class="summary-strip">
+      <div class="summary-box"><div class="num">${dir.managers.length}</div><div class="lbl">Managers</div></div>
+      <div class="summary-box"><div class="num">${dir.employees.length}</div><div class="lbl">Employees</div></div>
+      <div class="summary-box"><div class="num">${admins.length}</div><div class="lbl">Admins</div></div>
+    </div>
+
+    <div class="admin-layout">
+      <div class="admin-main">
+        <h2 class="section-title">Admins</h2>
+        <div class="card">
+          <div class="form-grid">
+            <div><label>Name</label><input type="text" id="newAdminName" placeholder="Full name"></div>
+            <div><label>Email</label><input type="email" id="newAdminEmail" placeholder="name@company.com"></div>
+            <div class="full"><label>Password</label><input type="password" id="newAdminPassword" placeholder="Set a password"></div>
+          </div>
+          <button type="button" class="primary" id="addAdminBtn">Add admin</button>
+        </div>
+        <ul class="admin-list">
+          ${admins.map(a => `
+            <li>
+              <span class="who"><span class="avatar">${esc(initials(a.name || a.email))}</span><span>${esc(a.name || a.email)}<br><span class="meta">${esc(a.email)}${a.email === currentAdminEmail ? ' &middot; you' : ''}</span></span></span>
+              ${admins.length > 1 ? `<button class="link-danger" data-remove-admin="${esc(a.email)}">Remove</button>` : ''}
+            </li>
+          `).join('') || '<li class="meta">No admins added yet.</li>'}
+        </ul>
+
+        <h2 class="section-title">Add a manager</h2>
+        <div class="card">
+          <div class="form-grid">
+            <div><label>Name</label><input type="text" id="newMgrName" placeholder="Full name"></div>
+            <div><label>Email</label><input type="email" id="newMgrEmail" placeholder="name@company.com"></div>
+            <div class="full"><label>Password</label><input type="password" id="newMgrPassword" placeholder="Set a login password"></div>
+          </div>
+          <p class="file-hint">You set this password for them — share it securely so they can sign in on the Manager tab.</p>
+          <button type="button" class="primary" id="addMgrBtn">Add manager</button>
+        </div>
+        <ul class="admin-list">
+          ${dir.managers.map(m => `
+            <li>
+              <span class="who"><span class="avatar">${esc(initials(m.name))}</span><span>${esc(m.name)}<br><span class="meta">${esc(m.email)}</span></span></span>
+              <span style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="password" class="mgr-reset-pw" data-mgr-name="${esc(m.name)}" placeholder="New password" style="width:150px; padding:0.4rem 0.55rem; font-size:0.82rem;">
+                <button type="button" class="secondary" data-reset-mgr="${esc(m.name)}" style="padding:0.4rem 0.7rem; font-size:0.78rem;">Set</button>
+                <button class="link-danger" data-remove-mgr="${esc(m.name)}">Remove</button>
+              </span>
+            </li>
+          `).join('') || '<li class="meta">No managers added yet.</li>'}
+        </ul>
+
+        <h2 class="section-title">Add an employee</h2>
+        <div class="card">
+          ${dir.managers.length === 0 ? '<p class="empty">Add at least one manager first so you can assign employees to them.</p>' : `
+            <div class="form-grid">
+              <div><label>Name</label><input type="text" id="newEmpName" placeholder="Full name"></div>
+              <div><label>Email</label><input type="email" id="newEmpEmail" placeholder="name@company.com"></div>
+              <div><label>Employee ID</label><input type="text" id="newEmpId" placeholder="e.g. EMP001"></div>
+              <div><label>Password</label><input type="password" id="newEmpPassword" placeholder="Set a login password"></div>
+              <div class="full"><label>Project manager</label><select id="newEmpMgr">${managerOptionsForEmp}</select></div>
+            </div>
+            <p class="file-hint">Share the Employee ID and password with them — that's what they'll use to sign in.</p>
+            <button type="button" class="primary" id="addEmpBtn">Add employee</button>
+          `}
+        </div>
+        <ul class="admin-list">
+          ${dir.employees.map(e => `
+            <li>
+              <span class="who"><span class="avatar">${esc(initials(e.name))}</span><span>${esc(e.name)}<br><span class="meta">${esc(e.email)} &middot; reports to ${esc(e.managerName || 'Unassigned')}${e.employeeId ? ' &middot; ID: ' + esc(e.employeeId) : ''}</span></span></span>
+              <button class="link-danger" data-remove-emp="${esc(e.name)}">Remove</button>
+            </li>
+          `).join('') || '<li class="meta">No employees added yet.</li>'}
+        </ul>
+      </div>
+
+      <div class="admin-side">
+        <h2 class="section-title" style="margin-top:0;">Monthly reports</h2>
+        <div class="card" style="border-left:3px solid var(--teal);">
+          <label for="reportMonth">Month</label>
+          <input type="month" id="reportMonth" value="${currentMonth}" style="margin-bottom:0.9rem;">
+          <div class="summary-box" style="margin-bottom:0.9rem; border-left-color:var(--teal);">
+            <div class="num" style="font-size:1.15rem;">${monthReports.length ? monthTotals : fmtMoney(0,'USD')}</div>
+            <div class="lbl">Filed this month (${monthReports.length} report${monthReports.length===1?'':'s'})</div>
+          </div>
+          <button type="button" class="primary" id="downloadReportBtn" style="width:100%;">Download CSV</button>
+          <p class="file-hint">Exports every expense line item filed in the selected month, across all employees, with currency noted per line.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function wireAdminPanel(dir, admins){
+  document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
+    adminLoggedIn = false;
+    currentAdminEmail = '';
+    await renderApp();
+  });
+
+  const downloadBtn = document.getElementById('downloadReportBtn');
+  if(downloadBtn){
+    downloadBtn.addEventListener('click', async () => {
+      const month = document.getElementById('reportMonth').value;
+      if(!month){ alert('Pick a month first.'); return; }
+      const reports = await loadAllReports();
+      downloadMonthlyCsv(reports, month);
+    });
+  }
+
+  const addAdminBtn = document.getElementById('addAdminBtn');
+  if(addAdminBtn){
+    addAdminBtn.addEventListener('click', async () => {
+      const name = document.getElementById('newAdminName').value.trim();
+      const email = document.getElementById('newAdminEmail').value.trim();
+      const password = document.getElementById('newAdminPassword').value;
+      if(!name || !email || !password) return;
+      const fresh = await loadAdmins();
+      if(fresh.some(a => a.email.toLowerCase() === email.toLowerCase())){
+        alert('An admin with that email already exists.');
+        return;
+      }
+      fresh.push({ name, email, password });
+      await saveAdmins(fresh);
+      await renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-remove-admin]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const email = btn.getAttribute('data-remove-admin');
+      const fresh = await loadAdmins();
+      if(fresh.length <= 1){
+        alert('You need at least one admin.');
+        return;
+      }
+      if(email === currentAdminEmail){
+        if(!confirm('This is your own account. Remove it anyway? You will be signed out.')) return;
+      }
+      const updated = fresh.filter(a => a.email !== email);
+      await saveAdmins(updated);
+      if(email === currentAdminEmail){
+        adminLoggedIn = false;
+        currentAdminEmail = '';
+      }
+      await renderApp();
+    });
+  });
+
+  const addMgrBtn = document.getElementById('addMgrBtn');
+  if(addMgrBtn){
+    addMgrBtn.addEventListener('click', async () => {
+      const name = document.getElementById('newMgrName').value.trim();
+      const email = document.getElementById('newMgrEmail').value.trim();
+      const password = document.getElementById('newMgrPassword').value;
+      if(!name || !email || !password) return;
+      const fresh = await loadDirectory();
+      if(fresh.managers.some(m => m.name.toLowerCase() === name.toLowerCase())){
+        alert('A manager with that name already exists.');
+        return;
+      }
+      fresh.managers.push({ name, email, password });
+      await saveDirectory(fresh);
+      await renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-reset-mgr]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const name = btn.getAttribute('data-reset-mgr');
+      const input = document.querySelector(`.mgr-reset-pw[data-mgr-name="${CSS.escape(name)}"]`);
+      const newPassword = input ? input.value : '';
+      if(!newPassword){ alert('Enter a new password first.'); return; }
+      const fresh = await loadDirectory();
+      const mgr = fresh.managers.find(m => m.name === name);
+      if(!mgr) return;
+      mgr.password = newPassword;
+      await saveDirectory(fresh);
+      alert('Password updated for ' + name + '.');
+      await renderApp();
+    });
+  });
+
+  const addEmpBtn = document.getElementById('addEmpBtn');
+  if(addEmpBtn){
+    addEmpBtn.addEventListener('click', async () => {
+      const name = document.getElementById('newEmpName').value.trim();
+      const email = document.getElementById('newEmpEmail').value.trim();
+      const employeeId = document.getElementById('newEmpId').value.trim();
+      const password = document.getElementById('newEmpPassword').value;
+      const managerName = document.getElementById('newEmpMgr').value;
+      if(!name || !email || !managerName || !employeeId || !password) return;
+      const fresh = await loadDirectory();
+      if(fresh.employees.some(e => e.name.toLowerCase() === name.toLowerCase())){
+        alert('An employee with that name already exists.');
+        return;
+      }
+      if(fresh.employees.some(e => (e.employeeId||'').toLowerCase() === employeeId.toLowerCase())){
+        alert('That Employee ID is already in use.');
+        return;
+      }
+      fresh.employees.push({ name, email, managerName, employeeId, password });
+      await saveDirectory(fresh);
+      await renderApp();
+    });
+  }
+
+  document.querySelectorAll('[data-remove-mgr]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const name = btn.getAttribute('data-remove-mgr');
+      const fresh = await loadDirectory();
+      fresh.managers = fresh.managers.filter(m => m.name !== name);
+      await saveDirectory(fresh);
+      await renderApp();
+    });
+  });
+  document.querySelectorAll('[data-remove-emp]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const name = btn.getAttribute('data-remove-emp');
+      const fresh = await loadDirectory();
+      fresh.employees = fresh.employees.filter(e => e.name !== name);
+      await saveDirectory(fresh);
+      await renderApp();
+    });
+  });
+}
+
+function downloadMonthlyCsv(reports, month){
+  const inMonth = reports.filter(r => new Date(r.submittedAt).toISOString().slice(0,7) === month);
+  const rows = [['Employee','Employee Email','Manager','Report Filed Date','Report Status','Item Date','Category','Description','Currency','Amount']];
+  inMonth.forEach(r => {
+    const filed = new Date(r.submittedAt).toISOString().slice(0,10);
+    r.items.forEach(it => {
+      rows.push([
+        r.employeeName, r.employeeEmail || '', r.managerName || '', filed, r.status,
+        it.date, it.category, (it.description||'').replace(/\s+/g,' '), it.currency || 'USD', Number(it.amount).toFixed(2)
+      ]);
+    });
+  });
+  if(rows.length === 1){
+    alert('No expense reports were filed in that month.');
+    return;
+  }
+  const csv = rows.map(row => row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'expense-report-' + month + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function csvEscape(val){
+  const s = String(val == null ? '' : val);
+  if(/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+document.getElementById('roleToggle').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-role]');
+  if(!btn) return;
+  currentRole = btn.getAttribute('data-role');
+  document.querySelectorAll('#roleToggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  await renderApp();
+});
+
+(async function init(){
+  await loadAdmins();
+  await renderApp();
+})();
+</script>
+</body>
+</html>
